@@ -72,12 +72,20 @@ Yes. I asked Copilot to generate pytest test cases that specifically targeted ea
 ## 4. What did you learn about Streamlit and state?
 
 - How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?
+Every time a user interacts with a Streamlit app, the entire script reruns from top to bottom. Session state is like a notebook that remembers values between those reruns — without it, everything resets every time the user clicks a button or types something.
 
 ---
 
 ## 5. Looking ahead: your developer habits
 
 - What is one habit or strategy from this project that you want to reuse in future labs or projects?
-  - This could be a testing habit, a prompting strategy, or a way you used Git.
+Writing pytest tests after every fix. It gave me confidence that the bug was actually solved and not just appearing to work.
+
+- This could be a testing habit, a prompting strategy, or a way you used Git.
+I would review Copilot's suggestions more carefully before accepting them instead of running the app first to discover the error.
+
 - What is one thing you would do differently next time you work with AI on a coding task?
+AI can write code quickly but it does not always understand the full context. I learned that I need to verify every suggestion rather than trust it blindly.
+
 - In one or two sentences, describe how this project changed the way you think about AI generated code.
+I used to think AI generated code just works. Now I know it needs to be tested and verified just like code I write myself.
