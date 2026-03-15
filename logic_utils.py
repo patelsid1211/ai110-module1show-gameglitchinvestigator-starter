@@ -12,13 +12,29 @@ def parse_guess(raw: str):
     raise NotImplementedError("Refactor this function from app.py into logic_utils.py")
 
 
+# FIX: Moved check_guess from app.py into logic_utils.py using Copilot Agent Mode
 def check_guess(guess, secret):
     """
     Compare guess to secret and return (outcome, message).
 
     outcome examples: "Win", "Too High", "Too Low"
     """
-    raise NotImplementedError("Refactor this function from app.py into logic_utils.py")
+    if guess == secret:
+        return "Win", "🎉 Correct!"
+
+    # FIX: Fixed high/low hint bug using Copilot Agent Mode
+    try:
+        if guess > secret:
+            return "Too High", "Too High"
+        else:
+            return "Too Low", "Too Low"
+    except TypeError:
+        g = str(guess)
+        if g == secret:
+            return "Win", "🎉 Correct!"
+        if g > secret:
+            return "Too High", "Too High"
+        return "Too Low", "Too Low"
 
 
 def update_score(current_score: int, outcome: str, attempt_number: int):

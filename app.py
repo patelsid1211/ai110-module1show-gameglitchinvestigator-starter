@@ -1,5 +1,7 @@
+# FIX: Updated import to use check_guess from logic_utils.py using Copilot Agent Mode
 import random
 import streamlit as st
+from logic_utils import check_guess
 
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
@@ -11,13 +13,14 @@ def get_range_for_difficulty(difficulty: str):
     return 1, 100
 
 
-def parse_guess(raw: str):
+def parse_guess(raw: str, low: int, high: int):
     if raw is None:
         return False, None, "Enter a guess."
 
     if raw == "":
         return False, None, "Enter a guess."
 
+    # Reject non-numeric input
     try:
         if "." in raw:
             value = int(float(raw))
@@ -26,25 +29,15 @@ def parse_guess(raw: str):
     except Exception:
         return False, None, "That is not a number."
 
+    # Reject negative or zero values
+    if value <= 0:
+        return False, None, "Enter a positive number."
+
+    # Reject out-of-range guesses
+    if value < low or value > high:
+        return False, None, f"Enter a number between {low} and {high}."
+
     return True, value, None
-
-
-def check_guess(guess, secret):
-    if guess == secret:
-        return "Win", "🎉 Correct!"
-
-    try:
-        if guess > secret:
-            return "Too High", "📈 Go HIGHER!"
-        else:
-            return "Too Low", "📉 Go LOWER!"
-    except TypeError:
-        g = str(guess)
-        if g == secret:
-            return "Win", "🎉 Correct!"
-        if g > secret:
-            return "Too High", "📈 Go HIGHER!"
-        return "Too Low", "📉 Go LOWER!"
 
 
 def update_score(current_score: int, outcome: str, attempt_number: int):
@@ -89,7 +82,8 @@ low, high = get_range_for_difficulty(difficulty)
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 
-if "secret" not in st.session_state:
+# Ensure the secret is always within the current difficulty range
+if "secret" not in st.session_state or not (low <= st.session_state.secret <= high):
     st.session_state.secret = random.randint(low, high)
 
 if "attempts" not in st.session_state:
@@ -131,9 +125,13 @@ with col2:
 with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
+# Reset all game state when starting a new game
 if new_game:
-    st.session_state.attempts = 0
-    st.session_state.secret = random.randint(1, 100)
+    st.session_state.attempts = 1
+    st.session_state.score = 0
+    st.session_state.status = "playing"
+    st.session_state.history = []
+    st.session_state.secret = random.randint(low, high)
     st.success("New game started.")
     st.rerun()
 
@@ -147,7 +145,7 @@ if st.session_state.status != "playing":
 if submit:
     st.session_state.attempts += 1
 
-    ok, guess_int, err = parse_guess(raw_guess)
+    ok, guess_int, err = parse_guess(raw_guess, low, high)
 
     if not ok:
         st.session_state.history.append(raw_guess)
