@@ -52,4 +52,5 @@ Refactored code — Moved check_guess from app.py into logic_utils.py to separat
 
 ## 🚀 Stretch Features
 
-- [ ] [If you choose to complete Challenge 4, insert a screenshot of your Enhanced Game UI here]
+- ![pytest results](assets/1.png)
+- ![pytest results](assets/2.png)

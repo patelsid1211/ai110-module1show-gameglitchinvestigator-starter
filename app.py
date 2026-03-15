@@ -2,6 +2,20 @@
 import random
 import streamlit as st
 from logic_utils import check_guess
+import os
+
+# AGENT: Implemented High Score Tracker using Copilot Agent Mode
+# Load high score from file
+HIGH_SCORE_FILE = "high_score.txt"
+if os.path.exists(HIGH_SCORE_FILE):
+    with open(HIGH_SCORE_FILE, "r") as f:
+        try:
+            high_score = int(f.read().strip())
+        except ValueError:
+            high_score = 0
+else:
+    high_score = 0
+
 
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
@@ -20,12 +34,13 @@ def parse_guess(raw: str, low: int, high: int):
     if raw == "":
         return False, None, "Enter a guess."
 
+    # Reject decimal numbers
+    if "." in raw:
+        return False, None, "Decimal numbers are not allowed."
+
     # Reject non-numeric input
     try:
-        if "." in raw:
-            value = int(float(raw))
-        else:
-            value = int(raw)
+        value = int(raw)
     except Exception:
         return False, None, "That is not a number."
 
@@ -98,6 +113,18 @@ if "status" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = []
 
+# Display high score in sidebar
+st.sidebar.subheader("High Score")
+st.sidebar.write(f"Best Score: {high_score}")
+
+# AGENT: Implemented Guess History Sidebar using Copilot Agent Mode
+st.sidebar.subheader("Guess History")
+if st.session_state.history:
+    for guess, outcome in st.session_state.history:
+        st.sidebar.write(f"Guess: {guess} - {outcome}")
+else:
+    st.sidebar.write("No guesses yet.")
+
 st.subheader("Make a guess")
 
 st.info(
@@ -148,10 +175,10 @@ if submit:
     ok, guess_int, err = parse_guess(raw_guess, low, high)
 
     if not ok:
-        st.session_state.history.append(raw_guess)
+        st.session_state.history.append((raw_guess, "Invalid"))
         st.error(err)
     else:
-        st.session_state.history.append(guess_int)
+        st.session_state.history.append((guess_int, "Pending"))  # temporary
 
         if st.session_state.attempts % 2 == 0:
             secret = str(st.session_state.secret)
@@ -160,8 +187,25 @@ if submit:
 
         outcome, message = check_guess(guess_int, secret)
 
+        # Update history with outcome
+        st.session_state.history[-1] = (guess_int, outcome)
+
         if show_hint:
-            st.warning(message)
+            if outcome == "Win":
+                st.success(message)
+            elif outcome == "Too High":
+                st.error(message)
+            elif outcome == "Too Low":
+                st.info(message)
+
+            # Hot/Cold feedback
+            distance = abs(guess_int - st.session_state.secret)
+            if distance <= 3:
+                st.write("🔥 Hot!")
+            elif distance <= 10:
+                st.write("🌡️ Warm!")
+            else:
+                st.write("❄️ Cold!")
 
         st.session_state.score = update_score(
             current_score=st.session_state.score,
@@ -176,6 +220,23 @@ if submit:
                 f"You won! The secret was {st.session_state.secret}. "
                 f"Final score: {st.session_state.score}"
             )
+            # Update high score if beaten
+            if st.session_state.score > high_score:
+                high_score = st.session_state.score
+                with open(HIGH_SCORE_FILE, "w") as f:
+                    f.write(str(high_score))
+
+            # Game Summary Table
+            st.subheader("Game Summary")
+            summary_data = {
+                "Metric": ["Total Attempts", "Final Score"],
+                "Value": [st.session_state.attempts, st.session_state.score]
+            }
+            st.table(summary_data)
+
+            st.subheader("Guess History")
+            history_data = [{"Guess": guess, "Outcome": outcome} for guess, outcome in st.session_state.history]
+            st.table(history_data)
         else:
             if st.session_state.attempts >= attempt_limit:
                 st.session_state.status = "lost"

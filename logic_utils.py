@@ -1,13 +1,29 @@
 def get_range_for_difficulty(difficulty: str):
-    """Return (low, high) inclusive range for a given difficulty."""
+    """
+    Return the inclusive range for a given difficulty level.
+
+    Args:
+        difficulty (str): The difficulty level, one of "Easy", "Normal", "Hard".
+
+    Returns:
+        tuple[int, int]: A tuple containing the low and high bounds of the range.
+    """
     raise NotImplementedError("Refactor this function from app.py into logic_utils.py")
 
 
 def parse_guess(raw: str):
     """
-    Parse user input into an int guess.
+    Parse the raw user input into a validated integer guess.
 
-    Returns: (ok: bool, guess_int: int | None, error_message: str | None)
+    Args:
+        raw (str): The raw input string from the user.
+
+    Returns:
+        tuple[bool, int | None, str | None]: A tuple containing:
+            - ok (bool): True if parsing succeeded, False otherwise.
+            - guess_int (int | None): The parsed integer if valid, None otherwise.
+            - error_message (str | None): An error message if parsing failed,
+              None otherwise.
     """
     raise NotImplementedError("Refactor this function from app.py into logic_utils.py")
 
@@ -15,9 +31,16 @@ def parse_guess(raw: str):
 # FIX: Moved check_guess from app.py into logic_utils.py using Copilot Agent Mode
 def check_guess(guess, secret):
     """
-    Compare guess to secret and return (outcome, message).
+    Compare the user's guess to the secret number and return the outcome and message.
 
-    outcome examples: "Win", "Too High", "Too Low"
+    Args:
+        guess: The user's guess (int or str).
+        secret: The secret number (int or str).
+
+    Returns:
+        tuple[str, str]: A tuple containing:
+            - outcome (str): "Win", "Too High", or "Too Low".
+            - message (str): A descriptive message for the outcome.
     """
     if guess == secret:
         return "Win", "🎉 Correct!"
@@ -38,5 +61,15 @@ def check_guess(guess, secret):
 
 
 def update_score(current_score: int, outcome: str, attempt_number: int):
-    """Update score based on outcome and attempt number."""
+    """
+    Update the player's score based on the game outcome and attempt number.
+
+    Args:
+        current_score (int): The player's current score.
+        outcome (str): The outcome of the guess, one of "Win", "Too High", "Too Low".
+        attempt_number (int): The number of attempts made so far.
+
+    Returns:
+        int: The updated score.
+    """
     raise NotImplementedError("Refactor this function from app.py into logic_utils.py")

@@ -57,3 +57,21 @@ def test_guess_too_low():
     # If secret is 50 and guess is 40, hint should be "Too Low"
     result = check_guess(40, 50)
     assert result == ("Too Low", "Too Low")
+
+
+def test_decimal_guess_rejected():
+    ok, value, err = parse_guess("5.5", 1, 20)
+    assert not ok
+    assert err == "Decimal numbers are not allowed."
+
+
+def test_extremely_large_guess_rejected():
+    ok, value, err = parse_guess("999999", 1, 20)
+    assert not ok
+    assert err == "Enter a number between 1 and 20."
+
+
+def test_zero_guess_rejected():
+    ok, value, err = parse_guess("0", 1, 20)
+    assert not ok
+    assert err == "Enter a positive number."
